@@ -1,0 +1,86 @@
+name: Build Debug APK
+
+# Unsigned-by-you test builds: Android's default debug key signs the APK, so no
+# keystore secrets are needed. The APK is attached to the run as an artifact.
+on:
+  push:
+    branches: [bsnes-core]
+  workflow_dispatch:
+
+env:
+  BUILDBOT: https://buildbot.libretro.com/nightly/android/latest
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Download libretro cores
+        run: |
+          # Same core list as the release workflow.
+          CORES=$(sed -n '/^  CORES: >-/,/^$/p' .github/workflows/release.yml | tail -n +2 | tr -s ' \n' ' ')
+          for arch in arm64-v8a armeabi-v7a; do
+            dir="app/src/main/jniLibs/${arch}"
+            mkdir -p "$dir"
+            for core in $CORES; do
+              name="${core}_libretro_android.so"
+              if [ -f "vendor/cores/${arch}/${name}" ]; then
+                echo "Using vendored ${arch}/${name}"
+                cp "vendor/cores/${arch}/${name}" "$dir/"
+                continue
+              fi
+              echo "Downloading ${arch}/${name}"
+              curl -sfL "${BUILDBOT}/${arch}/${name}.zip" -o /tmp/core.zip \
+                && unzip -o -q /tmp/core.zip -d "$dir" \
+                || echo "::warning::Could not fetch ${arch}/${name}"
+              rm -f /tmp/core.zip
+            done
+          done
+          ls -la app/src/main/jniLibs/*/
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+
+      - uses: android-actions/setup-android@v4
+
+      - uses: nttld/setup-ndk@v1
+        id: setup-ndk
+        with:
+          ndk-version: r27c
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: Build Kitchen frontend
+        run: |
+          git clone https://github.com/CannoliHQ/kitchen.git /tmp/kitchen
+          (cd /tmp/kitchen && bun install --frozen-lockfile && bun run build)
+          mkdir -p app/src/main/assets/kitchen
+          cp -r /tmp/kitchen/dist/* app/src/main/assets/kitchen/
+
+      - name: Fetch RetroArch autoconfig cfgs
+        run: ./scripts/fetch-autoconfig.sh
+
+      - name: Build debug APK
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: ./gradlew assembleDebug
+
+      - name: Name APK
+        id: apk
+        run: |
+          name="cannoli-${GITHUB_REF_NAME//\//-}-$(git rev-parse --short HEAD)-debug.apk"
+          mv app/build/outputs/apk/debug/app-debug.apk "app/build/outputs/apk/debug/${name}"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: app/build/outputs/apk/debug/${{ steps.apk.outputs.name }}
+          retention-days: 30
