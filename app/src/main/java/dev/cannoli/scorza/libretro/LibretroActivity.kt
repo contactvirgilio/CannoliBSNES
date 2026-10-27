@@ -433,6 +433,19 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
         // Substrings (lowercase) matched against "<key> <desc>" for cores declaring hw_render=true.
         // These options only take effect with a hardware GL/Vulkan context, which the built-in
         // runner does not provide, so we hide them rather than let users toggle no-ops.
+        // Core options kept out of the in-game menu. They still run at the core's defaults; they
+        // just aren't offered. bsnes Video keeps Aspect Ratio, Crop Vertical Overscan, Blur
+        // Emulation and Filter; the color and PPU tuning rows below are rarely touched.
+        private val HIDDEN_CORE_OPTIONS = setOf(
+            "bsnes_video_luminance",
+            "bsnes_video_saturation",
+            "bsnes_video_gamma",
+            "bsnes_ppu_fast",
+            "bsnes_ppu_deinterlace",
+            "bsnes_ppu_no_sprite_limit",
+            "bsnes_ppu_no_vram_blocking",
+        )
+
         private val HW_RENDER_GATED_PATTERNS = listOf(
             "resolution",
             "internal_res",
@@ -2398,7 +2411,7 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
     // --- Emulator ---
 
     private fun loadVisibleCoreOptions(): List<LibretroRunner.CoreOption> {
-        val all = runner.getCoreOptions()
+        val all = runner.getCoreOptions().filterNot { it.key in HIDDEN_CORE_OPTIONS }
         if (!coreRequiresHwRender) return all
         return all.filterNot { isHwRenderGatedOption(it) }
     }
