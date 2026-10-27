@@ -16,6 +16,7 @@
     { "name": "ZXing", "what": "QR Code Library", "license": "Apache 2.0" }
   ],
   "cores": [
+    { "name": "bsnes", "id": "bsnes", "what": "SNES", "license": "GPLv3" },
     { "name": "FBNeo", "id": "fbneo", "what": "Neo Geo / Arcade", "license": "Non-commercial" },
     { "name": "Gambatte", "id": "gambatte", "what": "Game Boy / Color", "license": "GPLv2" },
     { "name": "Genesis Plus GX", "id": "genesis_plus_gx", "what": "Genesis / SMS / GG", "license": "Non-commercial" },
@@ -30,7 +31,6 @@
     { "name": "PCSX ReARMed", "id": "pcsx_rearmed", "what": "PlayStation", "license": "GPLv2" },
     { "name": "PokeMini", "id": "pokemini", "what": "Pokémon Mini", "license": "GPLv3" },
     { "name": "ProSystem", "id": "prosystem", "what": "Atari 7800", "license": "GPLv2" },
-    { "name": "Snes9x", "id": "snes9x", "what": "SNES", "license": "Non-commercial" },
     { "name": "Stella", "id": "stella", "what": "Atari 2600", "license": "GPLv2" },
     { "name": "SwanStation", "id": "swanstation", "what": "PlayStation", "license": "GPLv3" }
   ],

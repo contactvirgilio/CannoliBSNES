@@ -21,9 +21,9 @@ on:
 env:
   BUILDBOT: https://buildbot.libretro.com/nightly/android/latest
   CORES: >-
-    fbneo gambatte genesis_plus_gx handy mame2003_plus mednafen_ngp
+    bsnes fbneo gambatte genesis_plus_gx handy mame2003_plus mednafen_ngp
     mednafen_pce_fast mednafen_vb mednafen_wswan mgba nestopia pcsx_rearmed
-    pokemini prosystem snes9x stella swanstation
+    pokemini prosystem stella swanstation
 
 jobs:
   build:
@@ -44,6 +44,12 @@ jobs:
             mkdir -p "$dir"
             for core in $CORES; do
               name="${core}_libretro_android.so"
+              # A build checked into vendor/cores wins over the buildbot nightly.
+              if [ -f "vendor/cores/${arch}/${name}" ]; then
+                echo "Using vendored ${arch}/${name}"
+                cp "vendor/cores/${arch}/${name}" "$dir/"
+                continue
+              fi
               echo "Downloading ${arch}/${name}"
               curl -sL "${BUILDBOT}/${arch}/${name}.zip" -o /tmp/core.zip
               unzip -o -q /tmp/core.zip -d "$dir"

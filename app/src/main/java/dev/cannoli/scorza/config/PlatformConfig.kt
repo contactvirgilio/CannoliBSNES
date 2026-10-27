@@ -139,7 +139,7 @@ class PlatformConfig(
             return null
         }
         if (source == EmulatorSource.Standalone && app == null) return null
-        return EmulatorChoice(source = source, coreId = coreId, appPackage = app)
+        return EmulatorChoice(source = source, coreId = coreId, appPackage = app).withRetiredCoreReplaced()
     }
 
     // v1 stored the picker's display caption as the runner, so the source has to be recovered

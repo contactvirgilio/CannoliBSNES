@@ -1,6 +1,7 @@
 package dev.cannoli.scorza.db
 
 import dev.cannoli.scorza.config.EmulatorChoice
+import dev.cannoli.scorza.config.withRetiredCoreReplaced
 import dev.cannoli.scorza.config.EmulatorSource
 
 data class GameOverrideEntry(val romId: Long, val displayName: String, val choice: EmulatorChoice)
@@ -45,6 +46,6 @@ class GameOverrideStore(private val db: CannoliDatabase) {
             source = source,
             coreId = if (isNull(offset + 1)) "" else getText(offset + 1),
             appPackage = if (isNull(offset + 2)) null else getText(offset + 2),
-        )
+        ).withRetiredCoreReplaced()
     }
 }

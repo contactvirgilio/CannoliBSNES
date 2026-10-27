@@ -13,6 +13,7 @@ val CREDITS_INSPIRATION: List<CreditEntry> = listOf(
 )
 
 val CREDITS_CORES: List<CreditEntry> = listOf(
+    CreditEntry("bsnes", "GPLv3"),
     CreditEntry("FBNeo", "Non-commercial"),
     CreditEntry("Gambatte", "GPLv2"),
     CreditEntry("Genesis Plus GX", "Non-commercial"),
@@ -27,7 +28,6 @@ val CREDITS_CORES: List<CreditEntry> = listOf(
     CreditEntry("PCSX ReARMed", "GPLv2"),
     CreditEntry("PokeMini", "GPLv3"),
     CreditEntry("ProSystem", "GPLv2"),
-    CreditEntry("Snes9x", "Non-commercial"),
     CreditEntry("Stella", "GPLv2"),
     CreditEntry("SwanStation", "GPLv3"),
 )

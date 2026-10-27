@@ -121,4 +121,16 @@ class CoresJsonMigrationTest {
         assertNull(json.optJSONObject("games"))
         assertNull(json.optJSONObject("cores"))
     }
+
+    @Test fun `a stored Internal snes9x choice reads as bsnes`() = assertEquals(
+        EmulatorChoice(EmulatorSource.Internal, "bsnes_libretro"),
+        load("m-retired", """{"v":2,"platforms":{"SNES":{"source":"Internal","core":"snes9x_libretro"}}}""")
+            .getPlatformChoice("SNES"),
+    )
+
+    @Test fun `a stored RetroArch snes9x choice is left alone`() = assertEquals(
+        EmulatorChoice(EmulatorSource.RetroArch, "snes9x_libretro"),
+        load("m-retired-ra", """{"v":2,"platforms":{"SNES":{"source":"RetroArch","core":"snes9x_libretro"}}}""")
+            .getPlatformChoice("SNES"),
+    )
 }
