@@ -9,6 +9,8 @@
 set -e
 
 FORK_URL="https://github.com/CannoliHQ/retroarch-joypad-autoconfig.git"
+# Used when the fork can't be reached (it isn't public to every clone of this repo).
+UPSTREAM_URL="https://github.com/libretro/retroarch-joypad-autoconfig.git"
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 REPO_ROOT=$(cd "$SCRIPT_DIR/.." && pwd)
 ASSETS_DIR="$REPO_ROOT/app/src/main/assets/autoconfig/android"
@@ -17,7 +19,11 @@ TMP_DIR=$(mktemp -d -t rajc.XXXXXX)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo "Cloning $FORK_URL into $TMP_DIR..."
-git clone --depth 1 "$FORK_URL" "$TMP_DIR" >/dev/null 2>&1
+if ! GIT_TERMINAL_PROMPT=0 git clone --depth 1 "$FORK_URL" "$TMP_DIR" >/dev/null 2>&1; then
+  echo "Fork unreachable, falling back to $UPSTREAM_URL"
+  rm -rf "$TMP_DIR" && mkdir -p "$TMP_DIR"
+  GIT_TERMINAL_PROMPT=0 git clone --depth 1 "$UPSTREAM_URL" "$TMP_DIR" >/dev/null 2>&1
+fi
 
 FORK_SHA=$(git -C "$TMP_DIR" rev-parse --short HEAD)
 FORK_COUNT=$(ls "$TMP_DIR/android"/*.cfg 2>/dev/null | wc -l | tr -d ' ')
