@@ -78,6 +78,7 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
 
     @Inject lateinit var settings: SettingsRepository
     @Inject lateinit var romsRepository: dev.cannoli.scorza.db.RomsRepository
+    @Inject lateinit var artworkLookup: dev.cannoli.scorza.util.ArtworkLookup
     @Inject lateinit var portRouter: dev.cannoli.scorza.input.runtime.PortRouter
     @Inject lateinit var controllerBridge: dev.cannoli.scorza.input.runtime.ControllerBridge
     @Inject lateinit var screenInputRegistry: dev.cannoli.scorza.input.runtime.ScreenInputRegistry
@@ -397,7 +398,9 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
         hasCheats = hasCheats,
         cheatsLabel = getString(R.string.igm_cheats),
         hasReassign = nonExcludedConnectedCount() > 1,
-        quitLabel = if (alwaysSaveOnQuit) getString(R.string.igm_save_and_quit) else getString(R.string.igm_quit)
+        quitLabel = if (alwaysSaveOnQuit) getString(R.string.igm_save_and_quit) else getString(R.string.igm_quit),
+        hasSetArtwork = romPath.isNotEmpty() && platformTag.isNotEmpty() && cannoliRoot.isNotEmpty(),
+        setArtworkLabel = getString(R.string.igm_set_artwork),
     )
 
     private fun nonExcludedConnectedCount(): Int =
@@ -1862,6 +1865,11 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
                 }
                 closeAll()
             }
+            IgmMenuAction.SET_ARTWORK -> {
+                val msg = if (setCurrentFrameAsArtwork()) R.string.osd_artwork_changed else R.string.osd_artwork_failed
+                showOsd(getString(msg), OsdPosition.BottomCenter)
+                closeAll()
+            }
             IgmMenuAction.GUIDE -> {
                 if (guideFiles.size == 1) {
                     openGuide(guideFiles[0])
@@ -1922,6 +1930,41 @@ class LibretroActivity : ComponentActivity(), LauncherSettingsHost {
             }
             IgmMenuAction.SWITCH_DISC, null -> {}
         }
+    }
+
+    /**
+     * Saves the current frame as this game's box art: Art/<platform>/<rom name>.png, the same
+     * name the launcher looks up. Any existing art for the game (any extension) is replaced.
+     */
+    private fun setCurrentFrameAsArtwork(): Boolean {
+        val romFile = File(romPath)
+        val baseName = if (romFile.name.endsWith(".p8.png", ignoreCase = true)) {
+            romFile.name.dropLast(".p8.png".length)
+        } else {
+            romFile.nameWithoutExtension
+        }
+        if (baseName.isEmpty()) return false
+        val artDir = dev.cannoli.scorza.config.CannoliPaths(cannoliRoot).artFor(platformTag)
+        if (!artDir.isDirectory && !artDir.mkdirs()) return false
+        val target = File(artDir, "$baseName.png")
+        val tmp = File(artDir, ".$baseName.png.tmp")
+        val ok = try {
+            slotManager.captureScreenshot(runner, tmp.absolutePath) && tmp.length() > 0
+        } catch (t: Throwable) {
+            sessionLog.log("set artwork failed: ${t.message}")
+            false
+        }
+        if (!ok) { tmp.delete(); return false }
+        artDir.listFiles()?.forEach { f ->
+            if (f.isFile && f != target && f != tmp && f.nameWithoutExtension == baseName) f.delete()
+        }
+        if (!tmp.renameTo(target)) {
+            target.delete()
+            if (!tmp.renameTo(target)) { tmp.delete(); return false }
+        }
+        artworkLookup.invalidate(platformTag)
+        sessionLog.log("artwork set from frame: ${target.absolutePath}")
+        return true
     }
 
     // --- Frontend ---

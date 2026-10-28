@@ -215,7 +215,10 @@ class GameListInputHandler @Inject constructor(
             gameListViewModel.confirmReorder()
         } else {
             val item = gameListViewModel.getSelectedItem()
-            if (item != null) {
+            // Start over a single game does nothing: the per-game menu (favorites, collections,
+            // emulator override, RA game ID, rename, delete) is turned off. Folders, collections,
+            // tools and ports keep their menu.
+            if (item != null && item !is ListItem.RomItem) {
                 val menuName = when (item) {
                     is ListItem.RomItem -> item.rom.displayName
                     is ListItem.AppItem -> item.app.displayName

@@ -137,10 +137,12 @@ class SaveSlotManager(private val stateBasePath: String) {
         File(undoThumbPath()).delete()
     }
 
-    private fun captureScreenshot(runner: LibretroRunner, path: String) {
+    // Writes the core's last frame (no shaders or overlays) as a PNG. Returns false if there was
+    // no frame or the file could not be written.
+    fun captureScreenshot(runner: LibretroRunner, path: String): Boolean {
         val w = runner.getFrameWidth()
         val h = runner.getFrameHeight()
-        if (w == 0 || h == 0) return
+        if (w == 0 || h == 0) return false
 
         val pixelFormat = runner.getPixelFormat()
         val bpp = if (pixelFormat == LibretroRunner.PIXEL_FORMAT_XRGB8888) 4 else 2
@@ -180,11 +182,12 @@ class SaveSlotManager(private val stateBasePath: String) {
             bitmap = rotated
         }
 
-        try {
+        val ok = try {
             File(path).outputStream().use { out ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 90, out)
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) { false }
         bitmap.recycle()
+        return ok
     }
 }

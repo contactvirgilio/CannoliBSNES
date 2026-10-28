@@ -1,6 +1,6 @@
 package dev.cannoli.igm
 
-enum class IgmMenuAction { RESUME, SAVE_STATE, LOAD_STATE, ACHIEVEMENTS, GUIDE, CHEATS, SETTINGS, SWITCH_DISC, REASSIGN, RESET, QUIT }
+enum class IgmMenuAction { RESUME, SAVE_STATE, LOAD_STATE, SET_ARTWORK, ACHIEVEMENTS, GUIDE, CHEATS, SETTINGS, SWITCH_DISC, REASSIGN, RESET, QUIT }
 
 class InGameMenuOptions(
     hasDiscs: Boolean,
@@ -11,11 +11,14 @@ class InGameMenuOptions(
     val cheatsLabel: String = "Cheats",
     hasReassign: Boolean = false,
     quitLabel: String = "Quit",
+    hasSetArtwork: Boolean = false,
+    val setArtworkLabel: String = "Set as Artwork",
 ) {
     val actions: List<IgmMenuAction> = buildList {
         add(IgmMenuAction.RESUME)
         add(IgmMenuAction.SAVE_STATE)
         add(IgmMenuAction.LOAD_STATE)
+        if (hasSetArtwork) add(IgmMenuAction.SET_ARTWORK)
         if (hasGuides) add(IgmMenuAction.GUIDE)
         if (hasCheats) add(IgmMenuAction.CHEATS)
         if (hasAchievements) add(IgmMenuAction.ACHIEVEMENTS)
@@ -31,6 +34,7 @@ class InGameMenuOptions(
             IgmMenuAction.RESUME -> "Resume"
             IgmMenuAction.SAVE_STATE -> "Save State"
             IgmMenuAction.LOAD_STATE -> "Load State"
+            IgmMenuAction.SET_ARTWORK -> setArtworkLabel
             IgmMenuAction.ACHIEVEMENTS -> "Achievements"
             IgmMenuAction.GUIDE -> "Guide"
             IgmMenuAction.CHEATS -> cheatsLabel

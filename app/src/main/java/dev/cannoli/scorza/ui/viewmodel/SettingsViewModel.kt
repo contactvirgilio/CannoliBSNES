@@ -210,8 +210,7 @@ class SettingsViewModel @Inject constructor(
         Category("library", R.string.settings_library),
         Category("input", R.string.settings_input),
         Category("emulation", R.string.settings_emulation),
-        Category("integrations", R.string.settings_integrations),
-        Category("advanced", R.string.settings_advanced),
+        // Integrations and Advanced are hidden from the menu; their screens still exist.
         Category("about", R.string.settings_about),
     ) + if (BuildConfig.DEBUG) listOf(Category("debug", R.string.settings_debug)) else emptyList()
 

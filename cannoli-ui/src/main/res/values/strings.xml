@@ -622,6 +622,10 @@
     <!-- OSD toast. %1$s = save slot name. -->
     <string name="osd_state_deleted">Deleted %1$s</string>
     <string name="osd_reset">Reset</string>
+    <!-- OSD toast after the current frame was saved as the game's box art. -->
+    <string name="osd_artwork_changed">Artwork changed</string>
+    <!-- OSD toast when the current frame could not be saved as box art. -->
+    <string name="osd_artwork_failed">Couldn\'t change artwork</string>
     <!-- OSD toast. %1$s = scaling mode name. -->
     <string name="osd_scaling">Scaling: %1$s</string>
     <!-- OSD toast. %1$s = shader preset name. -->
@@ -637,6 +641,8 @@
     <!-- %1$d = disc number (multi-disc games). -->
     <string name="osd_disc_fallback">Disc %1$d</string>
     <string name="igm_quit">Quit</string>
+    <!-- In-game menu item: saves the current frame as this game's box art. -->
+    <string name="igm_set_artwork">Set as Artwork</string>
     <string name="igm_cheats">Cheats</string>
     <string name="title_cheats">Cheats</string>
     <string name="label_restore_session">RESTORE LAST SESSION</string>

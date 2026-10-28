@@ -1,29 +1,22 @@
 package dev.cannoli.scorza.db
 
+// Recently Played only lists games. Apps (everything under Manage Tools and Manage Ports) are
+// never recorded, and any timestamps left from older builds are ignored by the queries.
 class RecentlyPlayedRepository(private val db: CannoliDatabase) {
     data class Entry(val ref: LibraryRef, val lastPlayedAt: Long)
 
     fun recent(limit: Int = 10): List<Entry> = db.queryAll(
         """
-        SELECT 'rom' AS kind, id, last_played_at FROM roms WHERE last_played_at IS NOT NULL
-        UNION ALL
-        SELECT 'app' AS kind, id, last_played_at FROM apps WHERE last_played_at IS NOT NULL
+        SELECT id, last_played_at FROM roms WHERE last_played_at IS NOT NULL
         ORDER BY last_played_at DESC
         LIMIT ?
         """.trimIndent(),
         limit.toLong(),
-    ) { stmt ->
-        val ref: LibraryRef = if (stmt.getText(0) == "rom") LibraryRef.Rom(stmt.getLong(1))
-        else LibraryRef.App(stmt.getLong(1))
-        Entry(ref, stmt.getLong(2))
-    }
+    ) { stmt -> Entry(LibraryRef.Rom(stmt.getLong(0)), stmt.getLong(1)) }
 
     fun record(ref: LibraryRef, timestamp: Long = System.currentTimeMillis()) {
-        val sql = when (ref) {
-            is LibraryRef.Rom -> "UPDATE roms SET last_played_at = ? WHERE id = ?"
-            is LibraryRef.App -> "UPDATE apps SET last_played_at = ? WHERE id = ?"
-        }
-        db.execute(sql, timestamp, ref.id)
+        if (ref !is LibraryRef.Rom) return
+        db.execute("UPDATE roms SET last_played_at = ? WHERE id = ?", timestamp, ref.id)
     }
 
     fun clear(ref: LibraryRef) {
@@ -35,10 +28,6 @@ class RecentlyPlayedRepository(private val db: CannoliDatabase) {
     }
 
     fun hasAny(): Boolean = db.queryOne(
-        """
-        SELECT 1 WHERE EXISTS(SELECT 1 FROM roms WHERE last_played_at IS NOT NULL)
-            OR EXISTS(SELECT 1 FROM apps WHERE last_played_at IS NOT NULL)
-        LIMIT 1
-        """.trimIndent(),
+        "SELECT 1 FROM roms WHERE last_played_at IS NOT NULL LIMIT 1",
     ) { true } ?: false
 }

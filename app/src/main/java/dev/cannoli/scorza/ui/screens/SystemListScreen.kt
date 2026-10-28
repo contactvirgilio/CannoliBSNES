@@ -93,7 +93,12 @@ fun SystemListScreen(
 
     val selectedItem = state.items.getOrNull(state.selectedIndex)
     val artPath = (selectedItem as? ListItem.GameItem)?.artFile?.absolutePath
-    val selectedArt by produceState<ImageBitmap?>(null, artPath) {
+    // The modified time is part of the key so replaced art (e.g. "Set as Artwork" in game) is
+    // re-read even though its path did not change. Re-checked whenever the list reloads.
+    val artStamp = androidx.compose.runtime.remember(artPath, state.items) {
+        artPath?.let { java.io.File(it).lastModified() } ?: 0L
+    }
+    val selectedArt by produceState<ImageBitmap?>(null, artPath, artStamp) {
         value = if (artPath != null) {
             withContext(Dispatchers.IO) {
                 try {

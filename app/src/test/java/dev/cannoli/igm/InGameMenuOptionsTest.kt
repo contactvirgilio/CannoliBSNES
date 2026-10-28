@@ -35,4 +35,14 @@ class InGameMenuOptionsTest {
         assertEquals(IgmMenuAction.RESET, o.actionAt(o.resetIndex))
         assertEquals(IgmMenuAction.QUIT, o.actionAt(o.quitIndex))
     }
+
+    @Test fun `set artwork sits after load state when enabled`() {
+        val o = InGameMenuOptions(hasDiscs = false, discLabel = "Disc 1", hasSetArtwork = true)
+        assertEquals(
+            listOf(IgmMenuAction.RESUME, IgmMenuAction.SAVE_STATE, IgmMenuAction.LOAD_STATE,
+                IgmMenuAction.SET_ARTWORK, IgmMenuAction.SETTINGS, IgmMenuAction.RESET, IgmMenuAction.QUIT),
+            o.actions,
+        )
+        assertEquals("Set as Artwork", o.options[3])
+    }
 }
