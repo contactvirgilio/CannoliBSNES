@@ -20,6 +20,10 @@
     <string name="label_proceed">PROCEED</string>
     <string name="label_toggle">TOGGLE</string>
     <string name="label_new">NEW</string>
+    <!-- Bottom bar: add the selected game to Favorites. -->
+    <string name="label_favorite">FAVORITE</string>
+    <!-- Bottom bar: remove the selected game from Favorites. -->
+    <string name="label_unfavorite">UNFAVORITE</string>
     <string name="label_settings">SETTINGS</string>
     <string name="label_resume">RESUME</string>
     <string name="label_continue">CONTINUE</string>

@@ -294,9 +294,20 @@ fun GameListScreen(
             }
             val resumeLabel = stringResource(R.string.label_resume)
             val showNewButton = state.isCollectionsList || (state.isCollection && !state.isFavorites)
+            val selectedFavorite: Boolean? = when (selected) {
+                is ListItem.RomItem -> state.isFavorites || selected.rom.id in state.favoriteRomIds
+                is ListItem.AppItem -> state.isFavorites || selected.app.id in state.favoriteAppIds
+                else -> null
+            }
+            val showFavoriteButton = !showNewButton && !state.multiSelectMode && selectedFavorite != null
             val leftItems = buildList {
                 add(buttonStyle.back to stringResource(R.string.label_back))
                 if (showNewButton) add(buttonStyle.west to stringResource(R.string.label_new))
+                if (showFavoriteButton) add(
+                    buttonStyle.west to stringResource(
+                        if (selectedFavorite == true) R.string.label_unfavorite else R.string.label_favorite
+                    )
+                )
             }
             val rightItems = if (state.items.isEmpty()) {
                 emptyList()

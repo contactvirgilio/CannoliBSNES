@@ -267,11 +267,9 @@ class GameListInputHandler @Inject constructor(
                 gameListViewModel.enterReorderMode()
             }
         } else if (glState.subfolderPath == null) {
-            if (gameListViewModel.isMultiSelectMode()) {
-                gameListViewModel.confirmMultiSelect()
-            } else {
-                gameListViewModel.enterMultiSelect()
-            }
+            // Select over a game no longer opens multi-select; favorites are on Y (west) instead.
+            // Only finish a multi-select that is somehow already open.
+            if (gameListViewModel.isMultiSelectMode()) gameListViewModel.confirmMultiSelect()
         }
     }
 
@@ -332,6 +330,13 @@ class GameListInputHandler @Inject constructor(
             nav.dialogState.value = DialogState.NewCollectionInput(gamePaths = emptyList())
         } else if (glState.isCollection && glState.collectionId != null && !glState.isFavorites) {
             nav.dialogState.value = DialogState.NewCollectionInput(gamePaths = emptyList(), parentId = glState.collectionId)
+        } else if (!gameListViewModel.isMultiSelectMode() && !gameListViewModel.isReorderMode()) {
+            // Y toggles Favorites for the selected game (or tool/port).
+            when (gameListViewModel.getSelectedItem()) {
+                is ListItem.RomItem, is ListItem.AppItem ->
+                    gameListViewModel.toggleFavorite { launcherActions.rescanSystemList() }
+                else -> {}
+            }
         }
     }
 
