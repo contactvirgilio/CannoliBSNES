@@ -84,3 +84,13 @@ jobs:
           name: ${{ steps.apk.outputs.name }}
           path: app/build/outputs/apk/debug/${{ steps.apk.outputs.name }}
           retention-days: 30
+
+      - name: Unit tests for this branch's changes
+        continue-on-error: true
+        env:
+          ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        run: |
+          ./gradlew :app:testDebugUnitTest \
+            --tests 'dev.cannoli.scorza.saves.*' \
+            --tests 'dev.cannoli.igm.InGameMenuOptionsTest' \
+            --tests 'dev.cannoli.scorza.config.CoresJsonMigrationTest'

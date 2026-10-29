@@ -904,6 +904,8 @@ class SettingsViewModel @Inject constructor(
                 add(SettingsItem("installed_cores", R.string.setting_installed_cores, labelText = context.getString(R.string.setting_installed_cores, pkgLabel), isEditable = true))
             }
             add(SettingsItem("always_save_on_quit", R.string.setting_always_save_on_quit, valueRes = onOff(settings.alwaysSaveOnQuit)))
+            add(SettingsItem("export_saves", R.string.setting_export_saves, isEditable = true))
+            add(SettingsItem("import_saves", R.string.setting_import_saves, isEditable = true))
         }
         "integrations" -> buildList {
             add(SettingsItem("integrations_ra", R.string.settings_retroachievements, isEditable = true))

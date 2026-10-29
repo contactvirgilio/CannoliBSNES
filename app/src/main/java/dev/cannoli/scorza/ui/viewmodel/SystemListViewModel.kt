@@ -89,6 +89,24 @@ class SystemListViewModel @Inject constructor(
         }
     }
 
+    // Console images for the art panel: Art/Systems/<TAG>.png (or .jpg/.jpeg/.webp), any case.
+    // The folder listing is cached and re-read when the folder's modified time changes.
+    private var systemImagesStamp = Long.MIN_VALUE
+    private var systemImages: Map<String, File> = emptyMap()
+
+    fun systemImageFile(tag: String): File? {
+        val dir = dev.cannoli.scorza.config.CannoliPaths(cannoliPaths.root).systemImagesDir
+        val stamp = if (dir.isDirectory) dir.lastModified() else -1L
+        if (stamp != systemImagesStamp) {
+            systemImages = dir.listFiles()
+                ?.filter { it.isFile && it.extension.lowercase() in SYSTEM_IMAGE_EXTENSIONS }
+                ?.associateBy { it.nameWithoutExtension.uppercase() }
+                ?: emptyMap()
+            systemImagesStamp = stamp
+        }
+        return systemImages[tag.uppercase()]
+    }
+
     sealed class ListItem {
         data object RecentlyPlayedItem : ListItem()
         data object FavoritesItem : ListItem()
@@ -452,3 +470,5 @@ class SystemListViewModel @Inject constructor(
         const val TAG_PORTS = "__PORTS__"
     }
 }
+
+private val SYSTEM_IMAGE_EXTENSIONS = setOf("png", "jpg", "jpeg", "webp")

@@ -8,6 +8,10 @@ class CannoliPaths(val root: File) {
 
     // Top-level data directories
     val artDir: File get() = File(root, "Art")
+    /** Console images shown on the system list: Systems/<TAG>.png. */
+    val systemImagesDir: File get() = File(artDir, "Systems")
+    /** Drop .zip/.sav/.srm files here, then Settings > Emulation > Import Saves. */
+    val importDir: File get() = File(root, "Import")
     val biosDir: File get() = File(root, "BIOS")
     val savesDir: File get() = File(root, "Saves")
     val saveStatesDir: File get() = File(root, "Save States")

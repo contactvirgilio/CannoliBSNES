@@ -592,6 +592,7 @@ class DialogInputHandler @Inject constructor(
                 nav.dialogState.value = DialogState.None
             }
             is DialogState.PlatformResetConfirm -> onPlatformReset(ds)
+            is DialogState.SavesImportConfirm -> runSavesImport()
             is DialogState.QuickMenu -> {
                 when (ds.rows.getOrNull(ds.selectedIndex)) {
                     dev.cannoli.scorza.ui.quickmenu.QuickMenuRow.ROMM -> {
@@ -1191,6 +1192,9 @@ class DialogInputHandler @Inject constructor(
                 nav.dialogState.value = DialogState.None
             }
             is DialogState.PlatformResetConfirm -> {
+                nav.dialogState.value = DialogState.None
+            }
+            is DialogState.SavesImportConfirm -> {
                 nav.dialogState.value = DialogState.None
             }
             is DialogState.RommDownloads -> {
@@ -1893,6 +1897,36 @@ class DialogInputHandler @Inject constructor(
         }
         nav.screenStack.removeAt(nav.screenStack.lastIndex)
         restoreContextMenu()
+    }
+
+    private fun runSavesImport() {
+        nav.dialogState.value = DialogState.None
+        val transfer = dev.cannoli.scorza.saves.SavesTransfer(dev.cannoli.scorza.config.CannoliPaths(settings.sdCardRoot))
+        ioScope.launch {
+            val msg = try {
+                val targets = HashMap<String, MutableList<dev.cannoli.scorza.saves.SavesTransfer.Target>>()
+                for (tag in romsRepository.knownPlatformTags()) {
+                    for (rom in romsRepository.allRomsForPlatform(tag)) {
+                        val base = java.text.Normalizer.normalize(rom.path.nameWithoutExtension, java.text.Normalizer.Form.NFC)
+                        val list = targets.getOrPut(dev.cannoli.scorza.saves.SavesTransfer.nameKey(base)) { mutableListOf() }
+                        val target = dev.cannoli.scorza.saves.SavesTransfer.Target(rom.platformTag, base)
+                        if (target !in list) list += target
+                    }
+                }
+                val r = transfer.importFolder(targets)
+                buildList {
+                    add(context.getString(dev.cannoli.scorza.R.string.saves_import_saves, r.savesImported))
+                    if (r.backupsRestored > 0) add(context.getString(dev.cannoli.scorza.R.string.saves_import_backups, r.backupsRestored))
+                    if (r.unmatched.isNotEmpty()) add(context.getString(dev.cannoli.scorza.R.string.saves_import_unmatched, r.unmatched.joinToString(", ")))
+                    if (r.ambiguous.isNotEmpty()) add(context.getString(dev.cannoli.scorza.R.string.saves_import_ambiguous, r.ambiguous.joinToString(", ")))
+                    if (r.failed.isNotEmpty()) add(context.getString(dev.cannoli.scorza.R.string.saves_import_failed, r.failed.joinToString(", ")))
+                }.joinToString("\n")
+            } catch (e: Exception) {
+                dev.cannoli.scorza.util.ErrorLog.write("import saves failed: ${e.message}")
+                context.getString(dev.cannoli.scorza.R.string.saves_import_failed, e.message ?: "")
+            }
+            withContext(Dispatchers.Main) { nav.dialogState.value = DialogState.SystemFoldersRegenerated(msg) }
+        }
     }
 
     private fun onPlatformReset(state: DialogState.PlatformResetConfirm) {

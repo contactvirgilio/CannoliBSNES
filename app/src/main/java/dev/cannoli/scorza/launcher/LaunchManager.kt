@@ -512,6 +512,11 @@ class LaunchManager(
 
         val saveDir = paths.savesFor(rom.platformTag)
         saveDir.mkdirs()
+        try {
+            dev.cannoli.scorza.saves.SavesTransfer(paths).importDropInSav(rom.platformTag, romName)
+        } catch (e: Exception) {
+            dev.cannoli.scorza.util.ErrorLog.write("drop-in .sav import failed: ${e.message}")
+        }
         val stateBase = paths.saveStateBase(rom.platformTag, romName)
         stateBase.parentFile?.mkdirs()
 

@@ -92,7 +92,13 @@ fun SystemListScreen(
     val collectionsLabel = stringResource(R.string.label_collections)
 
     val selectedItem = state.items.getOrNull(state.selectedIndex)
-    val artPath = (selectedItem as? ListItem.GameItem)?.artFile?.absolutePath
+    val artPath = androidx.compose.runtime.remember(selectedItem, state.items) {
+        when (selectedItem) {
+            is ListItem.GameItem -> selectedItem.artFile?.absolutePath
+            is ListItem.PlatformItem -> viewModel.systemImageFile(selectedItem.platform.tag)?.absolutePath
+            else -> null
+        }
+    }
     // The modified time is part of the key so replaced art (e.g. "Set as Artwork" in game) is
     // re-read even though its path did not change. Re-checked whenever the list reloads.
     val artStamp = androidx.compose.runtime.remember(artPath, state.items) {
@@ -115,7 +121,7 @@ fun SystemListScreen(
             }
         } else null
     }
-    val showArt = state.hasGameItems && selectedArt != null && artWidth > 0
+    val showArt = (state.hasGameItems || selectedItem is ListItem.PlatformItem) && selectedArt != null && artWidth > 0
     val duplicateGameNames = remember(state.items) {
         state.items.asSequence()
             .filterIsInstance<ListItem.GameItem>()

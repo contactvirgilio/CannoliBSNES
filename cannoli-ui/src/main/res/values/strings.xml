@@ -91,6 +91,24 @@
     <string name="settings_emulation">Emulation</string>
     <string name="settings_integrations">Integrations</string>
     <string name="settings_advanced">Advanced</string>
+    <!-- Emulation setting: zip every save and save state into the Backup folder. -->
+    <string name="setting_export_saves">Export Saves</string>
+    <!-- Emulation setting: import save files and backup zips from the Import folder. -->
+    <string name="setting_import_saves">Import Saves</string>
+    <!-- %1$d = number of files, %2$s = zip file name. -->
+    <string name="saves_export_done">Exported %1$d files to\nBackup/%2$s</string>
+    <string name="saves_export_empty">There are no saves to export yet.</string>
+    <string name="saves_export_failed">Couldn\'t write the backup zip.</string>
+    <string name="saves_import_empty">Put backup zips or .sav / .srm files (named like the game) in the Import folder, then try again.</string>
+    <!-- %1$d = number of files waiting in the Import folder. -->
+    <string name="saves_import_confirm">Import %1$d file(s) from the Import folder?\n\nSaves that get replaced are kept as .srm.bak.</string>
+    <!-- Import summary lines. -->
+    <string name="saves_import_saves">Saves imported: %1$d</string>
+    <string name="saves_import_backups">Backups restored: %1$d</string>
+    <string name="saves_import_unmatched">No matching game (rename to the game\'s file name): %1$s</string>
+    <string name="saves_import_ambiguous">Matches more than one game (copy it into Saves/&lt;system&gt;/ instead): %1$s</string>
+    <string name="saves_import_failed">Couldn\'t import: %1$s</string>
+    <string name="label_import">IMPORT</string>
     <string name="settings_debug" translatable="false">Debug</string>
     <string name="settings_retroachievements" translatable="false">RetroAchievements</string>
     <string name="settings_romm" translatable="false">RomM</string>

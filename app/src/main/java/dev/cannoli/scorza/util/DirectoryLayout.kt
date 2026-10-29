@@ -13,6 +13,8 @@ object DirectoryLayout {
         listOf(
             romDirectory,
             paths.artDir,
+            paths.systemImagesDir,
+            paths.importDir,
             paths.biosDir,
             paths.savesDir,
             paths.saveStatesDir,

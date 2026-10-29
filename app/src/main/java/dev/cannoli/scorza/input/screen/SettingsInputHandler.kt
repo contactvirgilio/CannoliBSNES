@@ -135,6 +135,34 @@ class SettingsInputHandler @Inject constructor(
             "installed_cores" -> queryInstalledCores()
             "manage_tools" -> openAppPicker("tools")
             "manage_ports" -> openAppPicker("ports")
+            "export_saves" -> {
+                val transfer = dev.cannoli.scorza.saves.SavesTransfer(dev.cannoli.scorza.config.CannoliPaths(cannoliPaths.root))
+                ioScope.launch {
+                    val msg = try {
+                        val result = transfer.export()
+                        if (result.zip == null) context.getString(dev.cannoli.scorza.R.string.saves_export_empty)
+                        else context.getString(dev.cannoli.scorza.R.string.saves_export_done, result.fileCount, result.zip.name)
+                    } catch (e: Exception) {
+                        dev.cannoli.scorza.util.ErrorLog.write("export saves failed: ${e.message}")
+                        context.getString(dev.cannoli.scorza.R.string.saves_export_failed)
+                    }
+                    withContext(Dispatchers.Main) { nav.dialogState.value = DialogState.SystemFoldersRegenerated(msg) }
+                }
+            }
+            "import_saves" -> {
+                val paths = dev.cannoli.scorza.config.CannoliPaths(cannoliPaths.root)
+                ioScope.launch {
+                    paths.importDir.mkdirs()
+                    val count = dev.cannoli.scorza.saves.SavesTransfer(paths).pendingImports().size
+                    withContext(Dispatchers.Main) {
+                        nav.dialogState.value = if (count == 0) {
+                            DialogState.SystemFoldersRegenerated(context.getString(dev.cannoli.scorza.R.string.saves_import_empty))
+                        } else {
+                            DialogState.SavesImportConfirm(count)
+                        }
+                    }
+                }
+            }
             "regenerate_system_folders" -> {
                 val romDir = cannoliPaths.romDir
                 val tags = platformConfig.getAllTags()

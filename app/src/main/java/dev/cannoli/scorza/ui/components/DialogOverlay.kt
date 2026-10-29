@@ -288,6 +288,14 @@ fun DialogOverlay(
             RestartOverlay(message = dialogState.message, buttonStyle = buttonStyle)
         }
 
+        is DialogState.SavesImportConfirm -> {
+            ConfirmOverlay(
+                message = stringResource(R.string.saves_import_confirm, dialogState.fileCount),
+                buttonStyle = buttonStyle,
+                confirmLabel = stringResource(R.string.label_import),
+            )
+        }
+
         is DialogState.QuickMenu -> {
             val conflictCount = dialogState.conflictCount
             ListDialogScreen(
