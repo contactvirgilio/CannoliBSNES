@@ -137,9 +137,22 @@ class SettingsInputHandler @Inject constructor(
             "manage_ports" -> openAppPicker("ports")
             "export_saves" -> {
                 val transfer = dev.cannoli.scorza.saves.SavesTransfer(dev.cannoli.scorza.config.CannoliPaths(cannoliPaths.root))
+                nav.dialogState.value = DialogState.SavesExportProgress()
                 ioScope.launch {
+                    var lastPercent = -1
                     val msg = try {
-                        val result = transfer.export()
+                        val result = transfer.export { done, total ->
+                            // Redraw only when the percentage moves, not once per file.
+                            val percent = if (total > 0) done * 100 / total else 0
+                            if (percent != lastPercent || done == total) {
+                                lastPercent = percent
+                                ioScope.launch(Dispatchers.Main) {
+                                    if (nav.dialogState.value is DialogState.SavesExportProgress) {
+                                        nav.dialogState.value = DialogState.SavesExportProgress(done, total)
+                                    }
+                                }
+                            }
+                        }
                         if (result.zip == null) context.getString(dev.cannoli.scorza.R.string.saves_export_empty)
                         else context.getString(dev.cannoli.scorza.R.string.saves_export_done, result.fileCount, result.zip.name)
                     } catch (e: Exception) {

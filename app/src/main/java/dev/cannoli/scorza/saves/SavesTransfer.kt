@@ -43,21 +43,25 @@ class SavesTransfer(private val paths: CannoliPaths) {
             ?.sortedBy { it.name.lowercase() }
             ?: emptyList()
 
-    fun export(now: Date = Date()): ExportResult {
+    /** Zips every save and state into Backup/, reporting (files done, total files) as it goes. */
+    fun export(now: Date = Date(), onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }): ExportResult {
         val roots = listOf(paths.savesDir, paths.saveStatesDir).filter { it.isDirectory }
         val files = roots.flatMap { root -> root.walkTopDown().filter { it.isFile }.map { root to it }.toList() }
         if (files.isEmpty()) return ExportResult(null, 0)
+        onProgress(0, files.size)
         paths.backupDir.mkdirs()
         val stamp = SimpleDateFormat("yyyy-MM-dd HHmmss", Locale.US).format(now)
         val zip = File(paths.backupDir, "Cannoli Saves $stamp.zip")
         val tmp = File(paths.backupDir, ".${zip.name}.tmp")
         ZipOutputStream(tmp.outputStream().buffered()).use { out ->
-            for ((root, file) in files) {
+            for ((index, pair) in files.withIndex()) {
+                val (root, file) = pair
                 val entry = ZipEntry(root.name + "/" + file.relativeTo(root).invariantSeparatorsPath)
                 entry.time = file.lastModified()
                 out.putNextEntry(entry)
                 file.inputStream().use { it.copyTo(out) }
                 out.closeEntry()
+                onProgress(index + 1, files.size)
             }
         }
         if (!tmp.renameTo(zip)) {

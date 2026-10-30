@@ -121,6 +121,7 @@ sealed interface DialogState {
     data class IntentAuditResult(val message: String) : DialogState
     data class SystemFoldersRegenerated(val message: String) : DialogState
     data class SavesImportConfirm(val fileCount: Int) : DialogState
+    data class SavesExportProgress(val done: Int = 0, val total: Int = 0) : DialogState
     data class PlatformResetConfirm(val tag: String, val platformName: String) : DialogState
     data class QuickMenu(
         val rows: List<dev.cannoli.scorza.ui.quickmenu.QuickMenuRow>,

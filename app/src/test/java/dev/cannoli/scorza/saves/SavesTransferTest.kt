@@ -30,8 +30,10 @@ class SavesTransferTest {
         val (p, t) = setup()
         p.savesFor("GBA").mkdirs(); File(p.savesFor("GBA"), "$emerald.srm").writeText("old")
         p.saveStateDir("GBA", emerald).mkdirs(); File(p.saveStateDir("GBA", emerald), "$emerald.state1").writeText("st")
-        val r = t.export()
+        val progress = mutableListOf<Pair<Int, Int>>()
+        val r = t.export { d, n -> progress += d to n }
         assertEquals(2, r.fileCount)
+        assertEquals(listOf(0 to 2, 1 to 2, 2 to 2), progress)
         val names = ZipFile(r.zip!!).use { z -> z.entries().toList().map { it.name }.sorted() }
         assertEquals(listOf("Save States/GBA/$emerald/$emerald.state1", "Saves/GBA/$emerald.srm"), names)
     }

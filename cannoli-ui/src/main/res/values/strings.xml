@@ -97,6 +97,10 @@
     <string name="setting_import_saves">Import Saves</string>
     <!-- %1$d = number of files, %2$s = zip file name. -->
     <string name="saves_export_done">Exported %1$d files to\nBackup/%2$s</string>
+    <!-- Title of the export progress screen. -->
+    <string name="saves_exporting">Exporting Saves</string>
+    <!-- %1$d = files written so far, %2$d = total files. -->
+    <string name="saves_export_progress">%1$d of %2$d files</string>
     <string name="saves_export_empty">There are no saves to export yet.</string>
     <string name="saves_export_failed">Couldn\'t write the backup zip.</string>
     <string name="saves_import_empty">Put backup zips or .sav / .srm files (named like the game) in the Import folder, then try again.</string>

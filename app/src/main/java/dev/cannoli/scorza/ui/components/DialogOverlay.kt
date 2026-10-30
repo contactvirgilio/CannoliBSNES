@@ -288,6 +288,10 @@ fun DialogOverlay(
             RestartOverlay(message = dialogState.message, buttonStyle = buttonStyle)
         }
 
+        is DialogState.SavesExportProgress -> {
+            SavesExportProgressOverlay(done = dialogState.done, total = dialogState.total)
+        }
+
         is DialogState.SavesImportConfirm -> {
             ConfirmOverlay(
                 message = stringResource(R.string.saves_import_confirm, dialogState.fileCount),

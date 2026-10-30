@@ -593,6 +593,7 @@ class DialogInputHandler @Inject constructor(
             }
             is DialogState.PlatformResetConfirm -> onPlatformReset(ds)
             is DialogState.SavesImportConfirm -> runSavesImport()
+            is DialogState.SavesExportProgress -> {}
             is DialogState.QuickMenu -> {
                 when (ds.rows.getOrNull(ds.selectedIndex)) {
                     dev.cannoli.scorza.ui.quickmenu.QuickMenuRow.ROMM -> {
@@ -1197,6 +1198,8 @@ class DialogInputHandler @Inject constructor(
             is DialogState.SavesImportConfirm -> {
                 nav.dialogState.value = DialogState.None
             }
+            // The export can't be cancelled midway; its result message replaces this when done.
+            is DialogState.SavesExportProgress -> {}
             is DialogState.RommDownloads -> {
                 if (ds.fromQuickMenu) {
                     openQuickMenu(dev.cannoli.scorza.ui.quickmenu.QuickMenuRow.DOWNLOADS)
